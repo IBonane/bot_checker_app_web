@@ -1,18 +1,18 @@
 const puppeteer = require('puppeteer');
 
-const criteria = {"nbCandidature": 5, "maxPrice": 700};
+const criteria = {"nbCandidature": 5, "maxPrice": 600};
+
+const fs = require('fs');
+// Lire le contenu du fichier JSON
+const jsonContent = fs.readFileSync('./secret.json', 'utf-8');
+// Parser le contenu JSON
+const secretData = JSON.parse(jsonContent);
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function sendSMS(message) {
-    const fs = require('fs');
-    // Lire le contenu du fichier JSON
-    const jsonContent = fs.readFileSync('./secret.json', 'utf-8');
-    // Parser le contenu JSON
-    const secretData = JSON.parse(jsonContent);
-
     const accountSid = secretData.sid;
     const authToken = secretData.token;
     const client = require('twilio')(accountSid, authToken);
@@ -35,10 +35,14 @@ async function checkHomeAvailable() {
     await page.goto('https://offres.passlogement.com/');
 
     // 3. Remplir les champs et se connecter
-    console.log("Remplir les champs et se connecter");
-    await page.type('#username-inputEl', "bonanedjimbala@gmail.com");
-    await page.type('#password-inputEl', "WOZaaigc");
+    console.log("Remplir les champs");
+    await page.type('#username-inputEl', secretData.user);
+    await page.type('#password-inputEl', secretData.password);
+
+    console.log("se connecter");
     await page.click("#button-1012-btnInnerEl");
+
+    console.log("patienter ...");
     await sleep(6000);
 
     // Utilisez page.evaluate pour exécuter une fonction JavaScript personnalisée dans le contexte de la page
@@ -64,8 +68,6 @@ async function checkHomeAvailable() {
             return cells.map(cell => cell.textContent.trim());
         });
     });
-
-    console.log(tableData);
 
     let homeFree = [];
     // Vérifiez les conditions et effectuez l'action souhaitée
@@ -93,18 +95,17 @@ async function checkHomeAvailable() {
     });
     await sleep(5000);
 
-    // 6. Envoyer un SMS si des dates sont disponibles
+    // 6. Envoyer un SMS si des logements sont disponibles
     if (homeFree.length > 0) {
-        // On remplace les #cJOURNEE par des dates au format JJ/MM/AAAA
         await sendSMS("Des logements sont disponibles: " + homeFree.join(" | "));
     } else {
-        console.log("Aucune date disponible");
+        console.log("Aucun logement disponible");
     }
 
     await browser.close();
 }
 
-// On vérifie les dates une première fois puis toutes les 10 minutes
+// On vérifie les logements une première fois puis toutes les 10 minutes
 checkHomeAvailable();
 setInterval(checkHomeAvailable, 1000 * 60 * 3);
 
