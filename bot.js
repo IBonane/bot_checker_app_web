@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 
-const criteria = {"nbCandidature": 5, "maxPrice": 800, "reloadTime": 1};
+const criteria = {"nbCandidature": 5, "maxPrice": 600, "reloadTime": 1};
 
 const fs = require('fs');
 // Lire le contenu du fichier JSON
@@ -17,7 +17,7 @@ const jsonFile = 'oldData.json';
 function saveResultsToJson(array, oldAlreadyFound) {
     // Convertir le array en chaîne JSON
     oldArray = oldAlreadyFound.concat(array)
-    const tableJSON = JSON.stringify(array);
+    const tableJSON = JSON.stringify(oldArray);
 
     // Écrire la chaîne JSON dans le fichier
     fs.writeFileSync(jsonFile, tableJSON);
