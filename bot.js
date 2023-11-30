@@ -50,9 +50,9 @@ async function checkHomeAvailable() {
         // Trouver l'élément qui a le texte "Les offres" et cliquer dessus
         const offersTab = Array.from(document.querySelectorAll('li.tab')).find(tab => tab.textContent.includes('Les offres'));
         if (offersTab) {
-        offersTab.click();
+            offersTab.click();
         } else {
-        console.error('Élément "Les offres" non trouvé');
+            console.error('Élément "Les offres" non trouvé');
         }
     });
     await sleep(5000);
@@ -97,15 +97,20 @@ async function checkHomeAvailable() {
 
     // 6. Envoyer un SMS si des logements sont disponibles
     if (homeFree.length > 0) {
-        await sendSMS("Des logements sont disponibles: " + homeFree.join(" | "));
-    } else {
+        console.log(homeFree.length + " logement(s) disponible(nt), envoi de sms en cours ...");
+
+        sendSMS("Des logements sont disponibles: " + homeFree.join(" ||| "));
+
+        console.log("sms envoyé avec succès au "+secretData.to);
+    }
+    else {
         console.log("Aucun logement disponible");
     }
 
     await browser.close();
 }
 
-// On vérifie les logements une première fois puis toutes les 10 minutes
+// On vérifie les logements une première fois puis toutes les 5 minutes
 checkHomeAvailable();
-setInterval(checkHomeAvailable, 1000 * 60 * 3);
+setInterval(checkHomeAvailable, 1000 * 60 * 5);
 
