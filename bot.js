@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 
-const criteria = {"nbCandidature": 5, "maxPrice": 600, "reloadTime": 1};
+const criteria = {"nbCandidature": 5, "maxPrice": 750, "reloadTime": 5, "arrayTypes": ['T1', 'T2']};
 
 const fs = require('fs');
 // Lire le contenu du fichier JSON
@@ -121,6 +121,8 @@ async function checkHomeAvailable() {
     // Vérifiez les conditions et effectuez l'action souhaitée
     tableData.forEach(row => {
         const nbCandidature = parseInt(row[row.length - 1], 10); // La dernière colonne est "Nb de candidature en cours"
+        const type = row[4];
+
         let loyer; // La colonne "Loyer"
 
         // Recherche de la valeur qui contient le symbole '€'
@@ -131,7 +133,7 @@ async function checkHomeAvailable() {
             // Extraire le montant du loyer en supprimant le symbole '€' et en le convertissant en entier
             loyer = parseInt(row[prixIndex].replace('€', ''), 10);
             
-            if (nbCandidature < criteria.nbCandidature && loyer < criteria.maxPrice) {
+            if (nbCandidature < criteria.nbCandidature && loyer < criteria.maxPrice && criteria.arrayTypes.includes(type)) {
                 //Si le logement trouvés a déjà été notifié, ne pas le rajouté
                 if(!checkArrayTwoInArrayOne(oldFound, row)){
                     homeFree.push(row);
